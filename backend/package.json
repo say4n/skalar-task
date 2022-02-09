@@ -1,0 +1,27 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "backend for Skalar's take home task",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/say4n/skalar-task.git"
+  },
+  "author": "Sayan Goswami",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/say4n/skalar-task/issues"
+  },
+  "homepage": "https://github.com/say4n/skalar-task#readme",
+  "dependencies": {
+    "@octokit/core": "^3.5.1",
+    "express": "^4.17.2",
+    "flat-cache": "^3.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
