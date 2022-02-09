@@ -3,8 +3,9 @@
 const express = require('express')
 const { Octokit } = require("@octokit/core");
 const flatCache = require('flat-cache')
+const path = require('path');
 
-const cache = flatCache.load('backend-cache');
+const cache = flatCache.load('backend-cache', path.resolve("./.cache"));
 
 const octokit = new Octokit({ auth: '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' })
 octokit.hook.after("request", async (response, options) => {
@@ -13,6 +14,18 @@ octokit.hook.after("request", async (response, options) => {
 
 const app = express()
 const port = process.env.PORT || 8000
+
+function repoProcessor(repo) {
+    return {
+        name: repo.name,
+        description: repo.description,
+        owner: repo.owner.name,
+        owner_avatar_url: repo.owner.avatar_url,
+        url: repo.html_url,
+        stargazers_count: repo.stargazers_count,
+        watchers_count: repo.watchers,
+    }
+}
 
 app.get('/related_repositories/:organization', async (req, res) => {
     const { organization } = req.params
@@ -52,7 +65,9 @@ app.get('/related_repositories/:organization', async (req, res) => {
         const all_repos = [...all_org_repos.data, ...all_member_repos, ...all_watched_repos]
         const all_unique_repos = [...new Set(all_repos)]
 
-        response = all_unique_repos
+        response = all_unique_repos.map(repoProcessor).sort((repo_a, repo_b) => {
+            return repo_b.watchers_count + repo_b.stargazers_count - repo_a.watchers_count - repo_a.stargazers_count
+        })
 
         cache.setKey(organization.toLowerCase(), all_unique_repos)
         cache.save(true)
