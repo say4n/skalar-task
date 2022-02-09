@@ -69,7 +69,7 @@ app.get('/related_repositories/:organization', async (req, res) => {
             return repo_b.watchers_count + repo_b.stargazers_count - repo_a.watchers_count - repo_a.stargazers_count
         })
 
-        cache.setKey(organization.toLowerCase(), all_unique_repos)
+        cache.setKey(organization.toLowerCase(), response)
         cache.save(true)
     }
 

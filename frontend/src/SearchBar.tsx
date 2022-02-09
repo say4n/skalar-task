@@ -7,21 +7,32 @@ import {
     Button,
     HStack,
     Input,
+    Circle,
+    Image,
+    useToast,
+    VStack
 } from "@chakra-ui/react"
 
 const API_ENDPOINT = "http://localhost:8000/related_repositories/"
 
 
-type Listing = {
-    full_name: string
+type ListingType = {
+    name: string,
+    description: string,
+    owner: string,
+    owner_avatar_url: string,
+    url: string,
+    stargazers_count: number,
+    watchers_count: number,
 };
 
-type ListingType = Listing[];
 
 
 function SearchBar() {
     const [searchTerm, setSearchTerm] = useState("")
-    const [listingData, setListingData] = useState<ListingType>();
+    const [listingData, setListingData] = useState<ListingType[]>();
+
+    const toast = useToast()
 
     return (
         <div>
@@ -35,13 +46,31 @@ function SearchBar() {
                     e.preventDefault()
                     console.info(`Searching for ${searchTerm}`)
 
+                    toast({
+                        title: `Fetching data from API`,
+                        status: "info",
+                        isClosable: true,
+                    })
+
+                    setListingData(undefined)
+
                     fetch(API_ENDPOINT + searchTerm, {
                         method: "GET"
                     }).then(
                         response => response.json()
                     ).then(
                         data => setListingData(data["repositories"])
+                    ).finally(
+                        () => {
+                            toast({
+                                title: `Done`,
+                                status: "success",
+                                isClosable: true,
+                            })
+                        }
                     )
+
+
                 }}>
                 <HStack>
                     <FormControl isRequired flex="5">
@@ -58,13 +87,23 @@ function SearchBar() {
                 </HStack>
             </form>
 
-            <ul>
-                {listingData && listingData.map((item, index) => (
-                    <li key={index}>
-                        {item.full_name}
-                    </li>
-                ))}
-            </ul>
+
+            {listingData && listingData.map((item, index) => (
+                <Box key={index} marginTop={2} borderWidth='1px' borderRadius='lg'>
+                    <HStack>
+                        <Circle size='40px' color='white' flex="1">
+                            <Image src={item.owner_avatar_url} alt={item.owner} />
+                        </Circle>
+
+                        <VStack>
+                            <Text flex="1">{item.name}</Text>
+                            <Text flex="1">{item.description}</Text>
+                        </VStack>
+                    </HStack>
+                </Box>
+            ))}
+
+
         </div>
     )
 }
