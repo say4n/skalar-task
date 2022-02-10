@@ -10,12 +10,12 @@ solution to Skalar's take home assignment
 
 ## step 1: backend
 
-navigate to the backend folder and execute `npm start`.
+navigate to the backend folder and execute `npm install && npm start`.
 this will start the backend server while will listen at port 8000.
 
 ## step 2: frontend
 
-navigate to the frontend folder and execute `npm start`.
+navigate to the frontend folder and execute `npm install && npm start`.
 this will open a browser tab with the frontend.
 
 ## author
