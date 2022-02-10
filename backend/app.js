@@ -4,10 +4,13 @@ const express = require('express')
 const { Octokit } = require("@octokit/core");
 const flatCache = require('flat-cache')
 const path = require('path');
+const fetch = require('node-fetch');
 
 const cache = flatCache.load('backend-cache', path.resolve("./.cache"));
 
-const octokit = new Octokit({ auth: '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' })
+const API_KEY = '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'
+
+const octokit = new Octokit({ auth: API_KEY })
 octokit.hook.after("request", async (response, options) => {
     console.info("Executed", options.method, options.url, response.status);
 });
@@ -15,7 +18,19 @@ octokit.hook.after("request", async (response, options) => {
 const app = express()
 const port = process.env.PORT || 8000
 
-function repoProcessor(repo) {
+async function repoProcessor(repo) {
+    console.info(`Fetching subscribers for ${repo.name}`);
+    const response = await fetch(
+        repo.subscribers_url,
+        {
+            method: 'GET',
+            headers: {
+                'Authorization': `token ${API_KEY}`
+            }
+        }
+    )
+    const subscribers = await response.json();
+
     return {
         name: repo.name,
         description: repo.description,
@@ -23,7 +38,7 @@ function repoProcessor(repo) {
         owner_avatar_url: repo.owner.avatar_url,
         url: repo.html_url,
         stargazers_count: repo.stargazers_count,
-        watchers_count: repo.watchers,
+        watchers_count: subscribers.length,
     }
 }
 
@@ -63,7 +78,7 @@ app.get('/related_repositories/:organization', async (req, res) => {
         }
 
         const all_repos = [...all_org_repos.data, ...all_member_repos, ...all_watched_repos]
-        const all_processed_repos = all_repos.map(repoProcessor)
+        const all_processed_repos = await Promise.all(all_repos.map(repoProcessor))
         const all_unique_repos = [...new Set(all_processed_repos.map(JSON.stringify))].map(JSON.parse)
 
         response = all_unique_repos.sort((repo_a, repo_b) => {
