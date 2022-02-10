@@ -9,7 +9,6 @@ import {
     Input,
     Spacer,
     Image,
-    Icon,
     useToast,
     SimpleGrid,
 } from "@chakra-ui/react"
@@ -103,8 +102,8 @@ function SearchBar() {
                                 boxSize='40px'
                                 borderRadius='full'/>
 
-                            <Text align="start">
-                                <a href={item.url}>{item.name}</a>
+                            <Text align="start" fontSize='md'>
+                                <a href={item.url}><b>{item.name}</b></a>
                             </Text>
 
                             <Spacer />
