@@ -63,9 +63,10 @@ app.get('/related_repositories/:organization', async (req, res) => {
         }
 
         const all_repos = [...all_org_repos.data, ...all_member_repos, ...all_watched_repos]
-        const all_unique_repos = [...new Set(all_repos)]
+        const all_processed_repos = all_repos.map(repoProcessor)
+        const all_unique_repos = [...new Set(all_processed_repos.map(JSON.stringify))].map(JSON.parse)
 
-        response = all_unique_repos.map(repoProcessor).sort((repo_a, repo_b) => {
+        response = all_unique_repos.sort((repo_a, repo_b) => {
             return repo_b.watchers_count + repo_b.stargazers_count - repo_a.watchers_count - repo_a.stargazers_count
         })
 
