@@ -1,26 +1,36 @@
-import * as React from "react"
+import React, { useState } from "react"
 import {
     ChakraProvider,
     Grid,
     theme,
     HStack,
     Heading,
-    Spacer,
+    Spacer
 } from "@chakra-ui/react"
+import {
+    ListingType
+} from "./GlobalExports";
 import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import SearchBar from "./SearchBar"
+import ListingView from "./Listing"
 
-export const App = () => (
-    <ChakraProvider theme={theme}>
-        <Grid p={4}>
-            <HStack>
-                <Heading justifySelf="flex-begin">Skalar Take Home Task</Heading>
-                <Spacer />
-                <ColorModeSwitcher justifySelf="end" />
-            </HStack>
+export default function App(){
+    const [listingData, setListingData] = useState<ListingType[]>();
 
-            <SearchBar />
+    return (
+        <ChakraProvider theme={theme}>
+            <Grid p={4}>
+                <HStack>
+                    <Heading justifySelf="flex-begin">Skalar Take Home Task</Heading>
+                    <Spacer />
+                    <ColorModeSwitcher justifySelf="end" />
+                </HStack>
 
-        </Grid>
-    </ChakraProvider>
-)
+                <SearchBar listingDataSetter={setListingData}/>
+
+                <ListingView listing={listingData}/>
+
+            </Grid>
+        </ChakraProvider>
+    )
+}
