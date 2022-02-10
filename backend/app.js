@@ -4,7 +4,6 @@ const express = require('express')
 const { Octokit } = require("@octokit/core");
 const flatCache = require('flat-cache')
 const path = require('path');
-const fetch = require('node-fetch');
 
 const cache = flatCache.load('backend-cache', path.resolve("./.cache"));
 
@@ -20,25 +19,22 @@ const port = process.env.PORT || 8000
 
 async function repoProcessor(repo) {
     console.info(`Fetching subscribers for ${repo.name}`);
-    const response = await fetch(
-        repo.subscribers_url,
-        {
-            method: 'GET',
-            headers: {
-                'Authorization': `token ${API_KEY}`
-            }
-        }
-    )
-    const subscribers = await response.json();
+    const repo_additional_data = await octokit.request('GET /repos/{owner}/{repo}', {
+        owner: repo.owner.login,
+        repo: repo.name
+    })
+
+    var subscribers_count = repo_additional_data.data.subscribers_count;
+    console.info(`${repo.name} has ${subscribers_count} subscribers`);
 
     return {
         name: repo.name,
         description: repo.description,
-        owner: repo.owner.name,
+        owner: repo.owner.login,
         owner_avatar_url: repo.owner.avatar_url,
         url: repo.html_url,
         stargazers_count: repo.stargazers_count,
-        watchers_count: subscribers.length,
+        watchers_count: subscribers_count,
     }
 }
 
